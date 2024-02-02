@@ -16,7 +16,7 @@ def consume_rabbitmq():
         method_frame, header_frame, body = channel.basic_get(queue='processing_queue')
         return body
     except Exception as e:
-        print(f"Error consuming RabbitMQ: {e}")
+        print("Error consuming RabbitMQ: {}".format(e))
         return None
     finally:
         if connection and connection.is_open:

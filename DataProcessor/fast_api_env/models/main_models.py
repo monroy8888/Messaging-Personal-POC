@@ -7,7 +7,13 @@ from typing import Dict, List, Optional
 
 class UploadResponse(BaseModel):
     filename: str
-    option: list = ["si", "no"]
+    option: List[str] = ["si", "no"]
+
+    def json(self):
+        return {
+            "filename": self.filename,
+            "option": self.option,
+        }
 
 
 class FunctionType(str, Enum):

@@ -1,5 +1,6 @@
 import pika
 import pdb
+import json
 
 connection = None
 channel = None
@@ -26,7 +27,7 @@ def close_rabbitmq_connection():
 
 def check_rabbitmq_status():
     try:
-        connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+        connection = pika.BlockingConnection(pika.ConnectionParameters('my_rabbitmq'))
         channel = connection.channel()
         print("Connected to RabbitMQ successfully.")
         print(f"Is open: {connection.is_open}")
@@ -37,26 +38,24 @@ def check_rabbitmq_status():
         print('Connection Error:', str(e))
     except Exception as e:
         print(f"Unexpected error: {str(e)}")
-    finally:
-        pdb.set_trace()  # Esto activará el modo de depuración y te permitirá inspeccionar el estado
 
 
 def send_message(message):
-    """
-    Send the message to the queue through the channel.
-    :param message:
-    :return:
-    """
     try:
         status_rabbitMQ = check_rabbitmq_status()
 
         if channel is None or channel.is_closed:
             initialize_rabbitmq()
+
+        # Convierte el objeto a una cadena JSON antes de enviarlo
+        serialized_message = json.dumps(message.json())
+
         channel.basic_publish(exchange='',
                               routing_key='processing_queue',
-                              body=message)
+                              body=serialized_message)
         return "Successfully 200."
     except pika.exceptions.AMQPError as e:
         return f"""Error sending message -> -> : {str(e)}
             Rabbit status {str(status_rabbitMQ)}
         """
+
